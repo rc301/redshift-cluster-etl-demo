@@ -18,37 +18,72 @@ time_table_drop = "DROP TABLE IF EXISTS time;"
 # CREATE TABLES
 
 staging_events_table_create= ("""
+
 """)
 
 staging_songs_table_create = ("""
+
 """)
 
 songplay_table_create = ("""
 create table songplays
 (
-    songplay_id int,
-    start_time timestamp,
-    user_id int, 
-    level string, 
-    song_id int, 
-    artist_id int, 
-    session_id int, 
-    location string, 
-    user_agent string
+    songplay_id     INTEGER     IDENTITY(0,1) NOT NULL,
+    start_time      TIMESTAMP   NOT NULL,
+    user_id         INTEGER     NOT NULL,
+    level           VARCHAR(10) NOT NULL, 
+    song_id         INTEGER     NOT NULL,
+    artist_id       INTEGER     NOT NULL,
+    session_id      INTEGER     NOT NULL,
+    location        VARCHAR     NOT NULL,
+    user_agent      VARCHAR     NOT NULL
 )
 """)
 
 user_table_create = ("""
-
+create table users
+(
+    user_id     INTEGER     IDENTITY(0,1) NOT NULL,
+    first_name  VARCHAR(50) NOT NULL,
+    last_name   VARCHAR(50) NOT NULL,
+    gender      VARCHAR()   NOT NULL,
+    level       VARCHAR(50) NOT NULL
+)
 """)
 
 song_table_create = ("""
+create table songs
+(
+    song_id     INTEGER     IDENTITY(0,1) NOT NULL,
+    title       VARCHAR()   NOT NULL,
+    artist_id   INTEGER     NOT NULL,
+    year        INTEGER     NOT NULL,
+    duration    INTEGER     NOT NULL
+)
 """)
 
 artist_table_create = ("""
+create table artists
+(
+    artist_id   INTEGER             IDENTITY(0,1) NOT NULL,
+    name        VARCHAR()           NOT NULL,
+    location    VARCHAR()           NOT NULL,
+    latitude    DOUBLE PRECISION    NOT NULL,
+    longitude   FLOAT               NOT NULL
+)
 """)
 
 time_table_create = ("""
+create table time
+(
+    start_time  TIMESTAMP   NOT NULL,
+    hour        SMALLINT    NOT NULL, 
+    day         SMALLINT    NOT NULL, 
+    week        SMALLINT    NOT NULL,
+    month       SMALLINT    NOT NULL,
+    year        SMALLINT    NOT NULL,
+    weekday     SMALLINT    NOT NULL
+)
 """)
 
 # STAGING TABLES
