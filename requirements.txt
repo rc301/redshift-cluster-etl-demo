@@ -10,8 +10,11 @@ decorator==5.1.1
 entrypoints==0.4
 executing==0.8.3
 fonttools==4.33.3
+greenlet==1.1.2
 ipykernel==6.15.0
 ipython==8.4.0
+ipython-genutils==0.2.0
+ipython-sql==0.4.1
 jedi==0.18.1
 jmespath==1.0.1
 jupyter-client==7.3.4
@@ -26,6 +29,7 @@ pandas==1.4.2
 parso==0.8.3
 pickleshare==0.7.5
 Pillow==9.1.1
+prettytable==0.7.2
 prompt-toolkit==3.0.29
 psutil==5.9.1
 psycopg2==2.9.3
@@ -38,6 +42,8 @@ pywin32==304
 pyzmq==23.2.0
 s3transfer==0.6.0
 six==1.16.0
+SQLAlchemy==1.4.38
+sqlparse==0.4.2
 stack-data==0.3.0
 tornado==6.1
 traitlets==5.3.0

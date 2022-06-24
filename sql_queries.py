@@ -8,13 +8,13 @@ DWH_ROLE_ARN = config.get("IAM_ROLE","ARN")
 
 # DROP TABLES
 
-staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
-staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
-songplay_table_drop = "DROP TABLE IF EXISTS songplays;"
-user_table_drop = "DROP TABLE IF EXISTS users;"
-song_table_drop = "DROP TABLE IF EXISTS songs;"
-artist_table_drop = "DROP TABLE IF EXISTS artists;"
-time_table_drop = "DROP TABLE IF EXISTS time;"
+staging_events_table_drop = "DROP TABLE IF EXISTS tb_staging_events;"
+staging_songs_table_drop = "DROP TABLE IF EXISTS tb_staging_songs;"
+songplay_table_drop = "DROP TABLE IF EXISTS tb_fact_songplays;"
+user_table_drop = "DROP TABLE IF EXISTS tb_dim_users;"
+song_table_drop = "DROP TABLE IF EXISTS tb_dim_songs;"
+artist_table_drop = "DROP TABLE IF EXISTS tb_dim_artists;"
+time_table_drop = "DROP TABLE IF EXISTS tb_dim_time;"
 
 # CREATE TABLES
 
@@ -36,7 +36,7 @@ create table tb_staging_events
     sessionId       INTEGER,
     song            VARCHAR(200),
     status          INTEGER,
-    ts              BIGINT,
+    ts              TIMESTAMP,
     userAgent       VARCHAR(150),
     userId          INTEGER
 );
@@ -47,7 +47,7 @@ create table tb_staging_songs
 (
     artist_id           VARCHAR(20),
     artist_latitude     DOUBLE PRECISION,
-    artist_location     VARCHAR(100),
+    artist_location     VARCHAR(200),
     artist_longitude    DOUBLE PRECISION,
     artist_name         VARCHAR(200),
     duration            DOUBLE PRECISION,
@@ -69,7 +69,7 @@ create table tb_fact_songplays
     artist_id       VARCHAR(20) NOT NULL,
     session_id      INTEGER     NOT NULL,
     location        VARCHAR(100) NOT NULL,
-    user_agent      VARCHAR     NOT NULL
+    user_agent      VARCHAR(150)     NOT NULL
 );
 """)
 
@@ -100,9 +100,9 @@ create table tb_dim_artists
 (
     artist_id   VARCHAR(20)         NOT NULL,
     name        VARCHAR(200)        NOT NULL,
-    location    VARCHAR(100)        NOT NULL,
-    latitude    DOUBLE PRECISION    NOT NULL,
-    longitude   DOUBLE PRECISION    NOT NULL
+    location    VARCHAR(200)        ,
+    latitude    DOUBLE PRECISION    ,
+    longitude   DOUBLE PRECISION    
 );
 """)
 
@@ -122,21 +122,28 @@ create table tb_dim_time
 # STAGING TABLES
 
 staging_events_copy = ("""
-    copy tb_staging_events from 's3://udacity-dend/log_data'
+    copy tb_staging_events 
+    from 's3://udacity-dend/log_data'
     credentials 'aws_iam_role={}'
-    gzip delimiter ';' compupdate off region 'us-west-2';
+    region 'us-west-2' 
+    format as json 's3://udacity-dend/log_json_path.json'
+    timeformat as 'epochmillisecs'
+;
 """).format(DWH_ROLE_ARN)
 
 staging_songs_copy = ("""
-    copy tb_staging_songs from 's3://udacity-dend/song_data'
+    copy tb_staging_songs 
+    from 's3://udacity-dend/song_data'
     credentials 'aws_iam_role={}'
-    gzip delimiter ';' compupdate off region 'us-west-2';
+    region 'us-west-2'
+    format as json 'auto ignorecase';
 """).format(DWH_ROLE_ARN)
 
 # FINAL TABLES
 
 songplay_table_insert = ("""
-INSERT INTO TABLE tb_fact_songplays 
+INSERT INTO tb_fact_songplays 
+(start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
 SELECT
     a.ts            as start_time,      
     a.userId        as user_id,         
@@ -155,7 +162,8 @@ WHERE trim(a.page) = 'NextSong'
 """)
 
 user_table_insert = ("""
-INSERT INTO TABLE tb_dim_users
+INSERT INTO tb_dim_users
+(user_id, first_name, last_name, gender, level)
 SELECT
     userId as user_id,     
     firstName as first_name,
@@ -163,12 +171,13 @@ SELECT
     gender as gender,
     level as level
 FROM tb_staging_events
-WHERE trim(a.page) = 'NextSong'
+WHERE trim(page) = 'NextSong'
 ;
 """)
 
 song_table_insert = ("""
-INSERT INTO TABLE tb_dim_songs
+INSERT INTO tb_dim_songs
+(song_id, title, artist_id, year, duration)
 SELECT
     song_id as song_id,  
     title as title,    
@@ -179,7 +188,8 @@ FROM tb_staging_songs;
 """)
 
 artist_table_insert = ("""
-INSERT INTO TABLE tb_dim_artists
+INSERT INTO tb_dim_artists
+(artist_id, name, location, latitude, longitude)
 SELECT
     artist_id as artist_id,
     artist_name as name,     
@@ -190,7 +200,8 @@ FROM tb_staging_songs;
 """)
 
 time_table_insert = ("""
-INSERT INTO TABLE tb_dim_time
+INSERT INTO tb_dim_time
+(start_time, hour, day, week, month, year, weekday)
 SELECT
     ts as start_time,
     EXTRACT(hour FROM ts) as hour,      
