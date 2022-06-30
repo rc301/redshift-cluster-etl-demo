@@ -4,11 +4,11 @@ from sql_queries import copy_table_queries, insert_table_queries
 
 
 def load_staging_tables(cur, conn):
-    """Loading data into staging tables.
+    """Load data into staging tables.
 
     Args:
-        cur (_type_): _description_
-        conn (_type_): _description_
+        cur (psycopg2.cursor): Allows Python code to execute PostgreSQL command in a database session.
+        conn (psycopg2.connection): Handles the connection to a PostgreSQL database instance. It encapsulates a database session.
     """
     for query in copy_table_queries:
         cur.execute(query)
@@ -16,11 +16,11 @@ def load_staging_tables(cur, conn):
 
 
 def insert_tables(cur, conn):
-    """Inserts data into star schema tables.
+    """Insert data into star schema tables.
 
     Args:
-        cur (_type_): _description_
-        conn (_type_): _description_
+        cur (psycopg2.cursor): Allows Python code to execute PostgreSQL command in a database session.
+        conn (psycopg2.connection): Handles the connection to a PostgreSQL database instance. It encapsulates a database session.
     """
     for query in insert_table_queries:
         cur.execute(query)
@@ -28,7 +28,7 @@ def insert_tables(cur, conn):
 
 
 def main():
-    """The main function that executes each step of the ETL job.
+    """Orchestrate each step of the ETL job.
     """
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
