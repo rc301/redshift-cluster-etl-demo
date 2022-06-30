@@ -28,7 +28,7 @@ def create_tables(cur, conn):
 
 
 def main():
-    """The main function that executes the drop and create tables statements in the database
+    """Execute the drop and create tables statements in the database
     """
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
