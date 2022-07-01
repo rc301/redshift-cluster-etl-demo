@@ -144,7 +144,7 @@ staging_songs_copy = ("""
 songplay_table_insert = ("""
 INSERT INTO tb_fact_songplays 
 (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
-SELECT
+SELECT DISTINCT
     a.ts            as start_time,      
     a.userId        as user_id,         
     a.level         as level,           
@@ -164,7 +164,7 @@ WHERE trim(a.page) = 'NextSong'
 user_table_insert = ("""
 INSERT INTO tb_dim_users
 (user_id, first_name, last_name, gender, level)
-SELECT
+SELECT DISTINCT
     userId as user_id,     
     firstName as first_name,
     lastName as last_name,
@@ -178,7 +178,7 @@ WHERE trim(page) = 'NextSong'
 song_table_insert = ("""
 INSERT INTO tb_dim_songs
 (song_id, title, artist_id, year, duration)
-SELECT
+SELECT DISTINCT
     song_id as song_id,  
     title as title,    
     artist_id as artist_id,
@@ -190,7 +190,7 @@ FROM tb_staging_songs;
 artist_table_insert = ("""
 INSERT INTO tb_dim_artists
 (artist_id, name, location, latitude, longitude)
-SELECT
+SELECT DISTINCT
     artist_id as artist_id,
     artist_name as name,     
     artist_location as location, 
@@ -202,7 +202,7 @@ FROM tb_staging_songs;
 time_table_insert = ("""
 INSERT INTO tb_dim_time
 (start_time, hour, day, week, month, year, weekday)
-SELECT
+SELECT DISTINCT
     ts as start_time,
     EXTRACT(hour FROM ts) as hour,      
     EXTRACT(day FROM ts) as day,       
